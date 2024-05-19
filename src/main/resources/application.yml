@@ -10,11 +10,14 @@ spring:
 #       native:
 #       search-locations: "classpath:/config"
         git:
-          uri: https://github.com/eazybytes/eazybytes-config.git
-          default-label: main # branch name for reading config
+          uri: https://github.com/sohag-aust/microservice-config-properties.git
+          default-label: master # branch name for reading config
           timeout: 5 # 5 seconds, my config server has 5 seconds time to read config from the github repository
           clone-on-start: true
           force-pull: true
+
+encrypt:
+  key: "this_is_a_random_encrypt_key"
 
 server:
   port: 8071
