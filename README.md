@@ -66,3 +66,38 @@
         we need to hit /busrefresh api from any microservice, so that the effect can be into other microservices
         suppose, if i changed the configurations for all the 3 microservices, then if i hit /busrefresh post api
         from 1 microservice, then it will reresh the other microservices as well.
+
+
+### Refresh config at runtime using Spring Cloud Bus & Spring Cloud Config monitor
+    
+    This comes into picture because, in the upper process we need to hit at lease /busrefresh api to refresh the configuration
+    to all the 3 microservices.
+    
+    But in the following approach, we don't need to hit any of API or don't need to refresh the configuration
+    If, config changes then it will effect all the 3 microservices.
+
+    1. Firstly, need to add config monitor dependency to pom.xml to the configserver
+    2. Add management configuration to application.yml in configserver
+    3. Add rabbitmq properties to application.yml in configserver
+    4. create webhook for tracking configuration changes in config repository
+        goto settings -> click webhooks option -> create new webhook
+        so eikhane akta url dite hobe jeta amr config server e changes gula assign kore dibe
+        like: https://localhost:8071/monitor
+        ei monitor api ta cloud monitor dependency provide kore.
+        but github kivabe amr localhost chinbe ? jodi kono server e application thakto tahole server er public IP diye dile kaj hoto
+        kintu, as my application is running in localhost so how can i solve this issue ?
+        using : hookdeck.com website.
+        goto : https://console.hookdeck.com/
+        
+        then, goto install section for linux installation,
+        follow the commands, 
+        1. firslty download tar.gz, then extract using tar command
+        2. secondly move the hookdeck to /usr/local/bin directory using command : sudo cp hookdeck /usr/local/bin
+        3. then, run the hookdeck login command from the console.hookdeck.com
+                like : hookdeck login --cli-key 45lh8lvgd5c3ak2uftjufoz3ao9uovqlrqky2er7t961j8kuyb
+        4. Listen hookdeck port like: hookdeck listen [port] Source
+        5. question will arrive : What path should the events be forwarded to (ie: /webhooks)?
+            ans:: /monitor
+        6. question will arrive : What's your connection label (ie: My API)?
+            ans:: localhost
+        7. Then, there will be a url , which we will paste in the webhook section in the github config-properties repo

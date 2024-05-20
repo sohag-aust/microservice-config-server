@@ -16,8 +16,26 @@ spring:
           clone-on-start: true
           force-pull: true
 
+  # RabbitMQ config for Spring Cloud Bus
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
 encrypt:
   key: "this_is_a_random_encrypt_key"
 
 server:
   port: 8071
+
+
+# Actuator properties
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS
