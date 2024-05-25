@@ -117,3 +117,10 @@
     11. add localhost
     12. After that, there will be a event url like :  https://hkdk.events/s6xkqpa7vvx2ia
     13. copy it and paste it into webhook section of my config properties github repo, if there is already one, then just edit and update
+
+### Section-7 :: MySql docker compose container
+
+    1. Firstly create new docker images for all services with tag s7
+        like: configserver:s7, accounts:s7, loans:s7, cards:s7
+
+    2. Then, chaange docker compose with mysql container related changes
