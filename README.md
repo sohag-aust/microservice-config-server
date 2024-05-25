@@ -101,3 +101,19 @@
         6. question will arrive : What's your connection label (ie: My API)?
             ans:: localhost
         7. Then, there will be a url , which we will paste in the webhook section in the github config-properties repo
+
+### HookDeck Login again and URL
+
+    1. Goto console.hookdeck.com
+    2. clock add destination option
+    3. copy login cli, like : hookdeck login --cli-key 45lh8lvgd5c3ak2uftjufoz3ao9uovqlrqky2er7t961j8kuyb
+    4. goto /usr/local/bin/ of local machine directory
+    5. try with the hookdeck login command
+    6. if getting error like : Verifying credentials... unexpected http status code: 401 Unauthorized
+    7. run : hookdeck logout command
+    8. try with login command again
+    9. Listen port for configserver using hookdeck command : hookdeck listen 8071 Source
+    10. Then add /monitor url
+    11. add localhost
+    12. After that, there will be a event url like :  https://hkdk.events/s6xkqpa7vvx2ia
+    13. copy it and paste it into webhook section of my config properties github repo, if there is already one, then just edit and update
