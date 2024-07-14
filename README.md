@@ -66,3 +66,180 @@
         we need to hit /busrefresh api from any microservice, so that the effect can be into other microservices
         suppose, if i changed the configurations for all the 3 microservices, then if i hit /busrefresh post api
         from 1 microservice, then it will reresh the other microservices as well.
+
+
+### Proxy for config server
+    
+    => nginx docker-compose for account microservices
+
+    version: '3.8'
+
+    services:
+      nginx:
+        image: nginx:latest
+        container_name: account-service-nginx
+        ports:
+          - "81:80"
+          - "5001:5001"
+
+        volumes:
+          - /etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+          - /etc/nginx/sites-enabled/account-microservice-proxy.config:/etc/nginx/sites-enabled/account-microservice-proxy.config
+    
+        networks:
+          - accountservice
+    
+    networks:
+      accountservice:
+        external: true
+
+
+    => nginx docker-compose for config-server
+
+    version: '3.8'
+
+    services:
+      nginx:
+      image: nginx:latest
+      container_name: config-server-nginx
+      ports:
+        - "80:80"
+        - "5000:5000"
+      volumes:
+        - /etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+        - /etc/nginx/sites-enabled/config-server-proxy.config:/etc/nginx/sites-enabled/config-server-proxy.config
+      networks:
+        - accountservice
+    
+    networks:
+      accountservice:
+        external: true
+
+
+    => proxy-config for account service reside in local /etc/nginx/sites-enabled
+
+    upstream account_servers {
+        server account-service-01:8080;
+        server account-service-02:8080;
+    }
+    
+    server {
+        listen 5001;
+        server_name localhost;
+    
+        location / {
+            proxy_pass http://account_servers;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
+
+    => proxy-config for config server reside in local /etc/nginx/sites-enabled
+
+    upstream config_servers {
+        server configserver-01:8071;
+        server configserver-02:8071;
+    }
+
+    server {
+        listen 5000;
+	    server_name localhost;
+        
+        location / {
+            proxy_pass http://config_servers;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
+
+    => docker-compose for rabbit-MQ
+
+    version: '3.8'
+
+    services:
+      rabbit:
+        image: rabbitmq:3.12-management
+        container_name: rabbitmq
+        ports:
+          - "5672:5672"
+          - "15672:15672"
+        networks:
+          - accountservice
+
+    networks:
+      accountservice:
+        external: true
+
+
+    => docker-compose for account service reside in config-properties repo in github , app-config-and-docker-configs branch
+
+    => docker-compose for config-server instance-01
+    
+    version: '3.8'
+
+    services:
+      configserver:
+        image: "ashrafulsohag/configserver:config"
+        container_name: "configserver-01"
+        restart: always
+        ports:
+          - 8071:8071
+    
+        networks:
+          - accountservice
+    
+        environment:
+          SPRING_RABBIT_HOST: rabbit
+          SPRING_RABBIT_PORT: 5672
+    
+    networks:
+      accountservice:
+        external: true
+
+
+    => docker-compose for config-server instance-02
+    
+    version: '3.8'
+
+    services:
+      configserver:
+        image: "ashrafulsohag/configserver:config"
+        container_name: "configserver-02"
+        restart: always
+        ports:
+          - 9071:8071
+    
+        networks:
+          - accountservice
+    
+        environment:
+          SPRING_RABBIT_HOST: rabbit
+          SPRING_RABBIT_PORT: 5672
+    
+    networks:
+      accountservice:
+        external: true
+
+
+    
+### Service running order in proxy
+
+    1. Run rabbitmq using docker-compose
+    2. Run 2 instances of config server using docker-compose
+    3. Run nginx proxy for config server using docker-compose
+    4. Run 2 instances of account service using docker-compose
+    5. Run nginx proxy for account service using docker-compose
+
+
+### Service running order if need to create docker image for config server or account service
+
+    1. Run rabbitmq using : sudo docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.12-management
+    2. Run config server locally or create docker image by running Dockerfile and then push to docker hub.
+    3. Run account service locally or create docker image by running Dockerfile and then push to docker hub.
+    
