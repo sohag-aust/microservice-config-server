@@ -41,3 +41,8 @@ management:
   metrics: # this is for telling micrometer and prometheus to group all the matrix of this application under an application name, so we can easily understand which matrix is used for which microservice
     tags:
       application: ${spring.application.name}
+
+# Logging Pattern for Distributed Tracing
+logging: # for distributed tracing [tags, traceId, spanId]
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
