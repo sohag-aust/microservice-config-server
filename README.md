@@ -124,9 +124,3 @@
         like: configserver:s7, accounts:s7, loans:s7, cards:s7
 
     2. Then, chaange docker compose with mysql container related changes
-
-
-
-
-
-### docker run --rm -p 4318:4318 -p 4317:4317 otel/opentelemetry-collector-contrib
